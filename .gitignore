@@ -1,0 +1,19 @@
+# Python Virtual Environments
+venv/
+.venv/
+ENV/
+
+# Python Bytecode & Cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Agent and Tool State
+.agents/
+
+# API Keys & Sensitive Data (Crucial!)
+.env
+
+# OS-specific files
+.DS_Store
+Thumbs.db
