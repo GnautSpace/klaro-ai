@@ -14,16 +14,36 @@ st.set_page_config(
 
 st.markdown("""
     <style>
+    /* Gradient text styling for main title and all markdown headers */
+    h1, h3, h4 {
+        background: linear-gradient(90deg, #4F46E5 0%, #9333EA 50%, #EC4899 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-weight: 800;
+    }
+    
+    h1 {
+        text-align: center;
+    }
+    
+    /* Gradient buttons with smooth hover animations */
     .stButton>button {
-        border-radius: 8px;
+        background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+        color: white !important;
+        border: none;
+        border-radius: 10px;
         font-weight: 600;
+        padding: 0.5rem 1rem;
         transition: all 0.3s ease;
         width: 100%;
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
     }
     .stButton>button:hover {
         transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+        box-shadow: 0 6px 20px rgba(126, 34, 206, 0.4);
+        background: linear-gradient(135deg, #4338CA 0%, #6D28D9 100%);
     }
+    
     .stTextInput>div>div>input, .stSelectbox>div>div>div {
         border-radius: 8px;
     }
@@ -38,7 +58,7 @@ if 'language' not in st.session_state:
 if 'ui_texts' not in st.session_state:
     st.session_state.ui_texts = {}
 
-st.sidebar.markdown("### :material/settings: Configuration")
+st.sidebar.markdown("### Configuration")
 custom_api_key = st.sidebar.text_input(
     "Custom API Key (Optional)", 
     type="password", 
@@ -57,8 +77,8 @@ if not backend_api_key:
 api_key = custom_api_key if custom_api_key else backend_api_key
 
 if st.session_state.language is None:
-    st.markdown("<h1 style='text-align: center; color: #4F46E5;'>:material/lightbulb: Klaro AI</h1>", unsafe_allow_html=True)
-    st.markdown("<h3 style='text-align: center; color: #6B7280; font-size: 1.1rem;'>Choose your language / Elige tu idioma / अपनी भाषा चुनें</h3>", unsafe_allow_html=True)
+    st.markdown("# :material/lightbulb: Klaro AI")
+    st.markdown("<h3 style='text-align: center; color: #6B7280; font-size: 1.1rem; margin-top: -10px;'>Choose your language / Elige tu idioma / Scegli la lingua</h3>", unsafe_allow_html=True)
     
     st.write("")
     col1, col2, col3, col4, col5 = st.columns(5)
@@ -71,8 +91,8 @@ if st.session_state.language is None:
             st.session_state.language = "Spanish"
             st.rerun()
     with col3:
-        if st.button("हिन्दी"):
-            st.session_state.language = "Hindi"
+        if st.button("Italiano"):
+            st.session_state.language = "Italian"
             st.rerun()
     with col4:
         if st.button("Français"):
@@ -85,8 +105,8 @@ if st.session_state.language is None:
         
     st.write("---")
     with st.container(border=True):
-        st.markdown("#### :material/language: Custom Language")
-        custom_lang = st.text_input("Or type any other language (e.g., Tamil, Arabic, Japanese):", placeholder="Type language name...")
+        st.markdown("#### Custom Language")
+        custom_lang = st.text_input("Or type any other language (e.g., Portuguese, Arabic, Japanese):", placeholder="Type language name...")
         if st.button("Set Language") and custom_lang:
             st.session_state.language = custom_lang
             st.rerun()
@@ -144,7 +164,7 @@ def fetch_ui_via_gemma(lang, key):
         parts = [p.strip() for p in response.text.split("|")]
         if len(parts) >= 10:
             ui_dict = {
-                "title": f":material/lightbulb: {parts[0]}",
+                "title": parts[0],
                 "subtitle": parts[1],
                 "mode_select": parts[2],
                 "modes": [parts[3], parts[4], parts[5]],
@@ -171,18 +191,18 @@ def fetch_ui_via_gemma(lang, key):
 
 t = fetch_ui_via_gemma(st.session_state.language, api_key)
 
-st.sidebar.markdown(f"### :material/translate: Language")
+st.sidebar.markdown("### Language")
 st.sidebar.info(f"Active: **{st.session_state.language}**")
 if st.sidebar.button(t["change_lang"]):
     st.session_state.language = None
     st.rerun()
 
-st.title(t["title"])
-st.markdown(f"<p style='color: #4B5563; font-size: 1.1rem; margin-bottom: 2rem;'>{t['subtitle']}</p>", unsafe_allow_html=True)
+st.markdown(f"# :material/lightbulb: {t['title']}")
+st.markdown(f"<p style='text-align: center; color: #4B5563; font-size: 1.1rem; margin-bottom: 2rem;'>{t['subtitle']}</p>", unsafe_allow_html=True)
 
 with st.sidebar:
     st.markdown("---")
-    st.markdown("### :material/tune: Preferences")
+    st.markdown("### Preferences")
     mode = st.selectbox(t["mode_select"], t["modes"])
     enable_voice = st.checkbox("Generate Audio (Native Accent)", value=True)
 
@@ -191,7 +211,7 @@ uploaded_file = st.file_uploader(t["upload"], type=["pdf", "png", "jpg", "jpeg"]
 if uploaded_file is not None:
     st.write("---")
     with st.container(border=True):
-        st.markdown("### :material/description: Document Preview")
+        st.markdown("### Document Preview")
         if uploaded_file.type in ["image/png", "image/jpeg"]:
             image = Image.open(uploaded_file)
             st.image(image, caption="Uploaded Document / Screenshot", use_column_width=True)
@@ -200,7 +220,7 @@ if uploaded_file is not None:
 
     if st.button(t["button"], type="primary"):
         if not api_key:
-            st.error(":material/error: No API key available! Please configure your backend key or enter one in the sidebar.")
+            st.error("No API key available! Please configure your backend key or enter one in the sidebar.")
         else:
             with st.spinner(t["spinner"]):
                 try:
@@ -219,10 +239,10 @@ if uploaded_file is not None:
                     Read the attached document carefully and explain its core meaning entirely into **{st.session_state.language}**. 
                     Use very basic, everyday words in {st.session_state.language}. Avoid complex jargon.
                     
-                    Structure your response clearly into:
-                    1. :material/visibility: **What this document is in plain terms**
-                    2. :material/warning: **Critical things to watch out for (Risks/Deadlines)**
-                    3. :material/check_circle: **Exact steps the user needs to take next**
+                    Structure your response clearly using these exact Markdown headers:
+                    ### What this document is in plain terms
+                    ### Critical things to watch out for (Risks/Deadlines)
+                    ### Exact steps the user needs to take next
                     """
                     
                     response = client.models.generate_content(
@@ -230,25 +250,26 @@ if uploaded_file is not None:
                         contents=[prompt, gemini_file]
                     )
 
-                    st.success(":material/task_alt: Analysis complete!")
+                    st.success("Analysis complete!")
                     
                     with st.container(border=True):
-                        st.markdown("### :material/auto_awesome: Klaro's Clear Explanation")
+                        st.markdown("### Klaro's Clear Explanation")
                         st.markdown(response.text)
 
                     if enable_voice:
                         try:
                             with st.container(border=True):
-                                st.markdown("### :material/volume_up: Native Audio Summary")
-                                clean_text = response.text.replace("*", "").replace("#", "").replace(":material/visibility:", "").replace(":material/warning:", "").replace(":material/check_circle:", "")
+                                st.markdown("### Native Audio Summary")
+                                clean_text = (response.text
+                                              .replace("*", "")
+                                              .replace("#", ""))
                                 
                                 lang_code_map = {
                                     "English": "en",
                                     "Spanish": "es",
-                                    "Hindi": "hi",
+                                    "Italian": "it",
                                     "French": "fr",
                                     "German": "de",
-                                    "Italian": "it",
                                     "Portuguese": "pt",
                                     "Arabic": "ar",
                                     "Japanese": "ja",
@@ -262,7 +283,7 @@ if uploaded_file is not None:
                                     tts.save(audio_tmp.name)
                                     st.audio(audio_tmp.name, format="audio/mp3")
                         except Exception as audio_err:
-                            st.warning(f":material/info: Audio generation note: {audio_err}")
+                            st.warning(f"Audio generation note: {audio_err}")
 
                 except Exception as e:
-                    st.error(f":material/error: An error occurred: {e}")
+                    st.error(f"An error occurred: {e}")
